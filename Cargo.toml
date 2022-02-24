@@ -11,10 +11,13 @@ documentation = "https://docs.rs/hyper-tls"
 edition = "2018"
 
 [features]
-default = ["tokio-native-tls"]
-vendored = ["native-tls/vendored"]
-rustls = ["tokio-rustls", "rustls-native-certs"]
-rustls-webpki-rools = ["webpki-roots"]
+default = []
+use-native-tls = ["tokio-native-tls"]
+use-native-tls-vendored = ["tokio-native-tls", "native-tls/vendored"]
+
+use-rustls-with-native-certs = ["use-rustls", "rustls-native-certs"]
+use-rustls-with-webpki-roots = ["use-rustls", "webpki-roots"]
+use-rustls = ["tokio-rustls"]
 
 [dependencies]
 bytes = "1"

@@ -105,11 +105,11 @@ impl<T: AsyncRead + AsyncWrite + Connection + Unpin> Connection for MaybeHttpsSt
     fn connected(&self) -> Connected {
         match self {
             MaybeHttpsStream::Http(s) => s.connected(),
-            #[cfg(feature = "rustls")]
+            #[cfg(feature = "tokio-rustls")]
             MaybeHttpsStream::Https(s) => {
                 s.get_ref().0.connected()
             },
-            #[cfg(not(feature = "rustls"))]
+            #[cfg(not(feature = "tokio-rustls"))]
             MaybeHttpsStream::Https(s) => {
                 s.get_ref().get_ref().get_ref().connected()
             },

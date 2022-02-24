@@ -52,19 +52,19 @@ impl HttpsConnector<HttpConnector> {
     }
 }
 
-#[cfg(not(feature = "rustls"))]
+#[cfg(not(feature = "tokio-rustls"))]
 fn default_tls_connector() -> TlsConnector {
     native_tls::TlsConnector::new().map(|v| v.into())
         .unwrap_or_else(|e| panic!("native_tls::TlsConnector::new() failure: {}", e))
 }
 
-#[cfg(feature = "rustls")]
+#[cfg(feature = "tokio-rustls")]
 fn default_tls_connector() -> TlsConnector {
     use tokio_rustls::rustls::{ClientConfig, RootCertStore};
 
     let mut trusted_certs = RootCertStore::empty();
 
-    #[cfg(not(feature = "rustls-webpki-rools"))]
+    #[cfg(feature = "use-rustls-with-native-certs")]
     {
         let certificates = rustls_native_certs::load_native_certs()
             .expect("failed to load native certificates");
@@ -73,7 +73,7 @@ fn default_tls_connector() -> TlsConnector {
         }
     }
 
-    #[cfg(feature = "rustls-webpki-rools")]
+    #[cfg(feature = "use-rustls-with-webpki-roots")]
     {
         use tokio_rustls::rustls::OwnedTrustAnchor;
 
@@ -175,13 +175,13 @@ impl<T> Service<Uri> for HttpsConnector<T>
         let fut = async move {
             let tcp = connecting.await.map_err(Into::into)?;
             let maybe = if is_https {
-                #[cfg(feature = "rustls")]
+                #[cfg(feature = "tokio-rustls")]
                     let tls = {
                     let server_name = tokio_rustls::rustls::ServerName::try_from(host.as_str())?;
                     tokio_rustls::TlsStream::Client(tls.connect(server_name, tcp).await?)
                 };
 
-                #[cfg(not(feature = "rustls"))]
+                #[cfg(not(feature = "tokio-rustls"))]
                     let tls = tls.connect(&host, tcp).await?;
 
                 MaybeHttpsStream::Https(tls)
