@@ -28,14 +28,18 @@
 #[doc(hidden)]
 pub extern crate native_tls;
 
-#[cfg(not(feature = "tokio-rustls"))]
+#[cfg(feature = "use-native-tls")]
 pub use tokio_native_tls::{TlsConnector, TlsStream};
 
-#[cfg(feature = "tokio-rustls")]
+#[cfg(all(feature = "use-rustls", not(feature = "use-native-tls")))]
 pub use tokio_rustls::{TlsConnector, TlsStream};
 
+#[cfg(any(feature = "use-native-tls", feature = "use-rustls"))]
 pub use client::{HttpsConnecting, HttpsConnector};
+#[cfg(any(feature = "use-native-tls", feature = "use-rustls"))]
 pub use stream::MaybeHttpsStream;
 
+#[cfg(any(feature = "use-native-tls", feature = "use-rustls"))]
 mod client;
+#[cfg(any(feature = "use-native-tls", feature = "use-rustls"))]
 mod stream;
