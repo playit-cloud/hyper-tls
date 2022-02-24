@@ -26,6 +26,7 @@
 #![deny(missing_debug_implementations)]
 
 #[doc(hidden)]
+#[cfg(feature = "use-native-tls")]
 pub extern crate native_tls;
 
 #[cfg(feature = "use-native-tls")]
